@@ -1,0 +1,62 @@
+def ag_flip_analysis(year):
+    """Pass in year, and get analysis of the flip in that year """
+    gov_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Governor/GOV_{}.csv'.format(year)
+    ag_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Attorney General/AG_{}.csv'.format(year)
+    
+    gov_data = pd.read_csv(gov_url, thousands = ',')
+    gov_data = gov_data[['City/Town','Republican','Democratic']]
+    gov_data.rename(columns = {'Republican':'GOP_GOV','Democratic':'DEM_GOV'}, inplace = True)
+    
+    
+    ag_data = pd.read_csv(ag_url, thousands = ',')
+    ag_data = ag_data[['City/Town','Republican','Democratic']]
+    ag_data.rename(columns = {'Republican':'GOP_AG','Democratic':'DEM_AG'}, inplace = True)
+
+    all_data = pd.merge(gov_data,ag_data,on = 'City/Town')
+    all_data = all_data.set_index(['City/Town'])
+    all_data.astype('int32').dtypes
+    
+    all_data['GOV_less_AG'] = all_data['DEM_GOV'] - all_data['DEM_AG']
+    all_data['GOV_GOP_less_DEM'] = all_data['GOP_GOV'] - all_data['DEM_GOV']
+    all_data= all_data[['GOV_less_AG','GOV_GOP_less_DEM']]
+
+    ag_traitor =  all_data.copy(deep = True)
+    ag_traitor = ag_traitor.drop(ag_traitor[ag_traitor.GOV_less_AG >0].index)
+    ag_traitor['pct_lost_votes'] = ag_traitor['GOV_less_AG']/ag_traitor['GOV_less_AG'].sum() * 100
+    ag_traitor = ag_traitor.sort_values(['pct_lost_votes'], ascending = False)
+    ag_traitor = ag_traitor[['GOV_less_AG','GOV_GOP_less_DEM','pct_lost_votes']]
+
+    print(ag_traitor)
+    
+def sen_flip_analysis(year):
+    """Pass in year, and get analysis of the flip in that year """
+    gov_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Governor/GOV_{}.csv'.format(year)
+    sen_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Senator/SEN_{}.csv'.format(year)
+    
+    gov_data = pd.read_csv(gov_url, thousands = ',')
+    gov_data = gov_data[['City/Town','Republican','Democratic']]
+    gov_data.rename(columns = {'Republican':'GOP_GOV','Democratic':'DEM_GOV'}, inplace = True)
+    
+    sen_data = pd.read_csv(sen_url, thousands = ',')
+    sen_data = sen_data[['City/Town','Republican','Democratic']]
+    sen_data.rename(columns = {'Republican':'GOP_SEN','Democratic':'DEM_SEN'}, inplace = True)
+
+    all_data = pd.merge(gov_data,sen_data,on = 'City/Town')
+    all_data = all_data.set_index(['City/Town'])
+    all_data.astype('int32').dtypes
+    
+    all_data['GOV_less_SEN'] = all_data['DEM_GOV'] - all_data['DEM_SEN']
+    all_data['GOV_GOP_less_DEM'] = all_data['GOP_GOV'] - all_data['DEM_GOV']
+    all_data= all_data[['GOV_less_SEN','GOV_GOP_less_DEM']]
+
+    sen_traitor =  all_data.copy(deep = True)
+    sen_traitor = sen_traitor.drop(sen_traitor[sen_traitor.GOV_less_SEN >0].index)
+    sen_traitor['pct_lost_votes'] = sen_traitor['GOV_less_SEN']/sen_traitor['GOV_less_SEN'].sum() * 100
+    sen_traitor = sen_traitor.sort_values(['pct_lost_votes'], ascending = False)
+    sen_traitor = sen_traitor[['GOV_less_SEN','GOV_GOP_less_DEM','pct_lost_votes']]
+
+    print(sen_traitor)    
+    
+
+
+
