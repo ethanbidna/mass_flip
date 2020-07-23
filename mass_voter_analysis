@@ -1,0 +1,59 @@
+import pandas as pd
+from functools import reduce
+
+
+def vote_result(x):
+    if x > 0:
+        return 'More Gov'
+    if x <= 0: 
+        return 'More AG'
+
+
+def ag_flip_analysis(year):
+    """Pass in year, and get analysis of the flip in that year """
+    gov_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Governor/GOV_{}.csv'.format(year)
+    ag_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Attorney General/AG_{}.csv'.format(year)
+    
+    gov_data = pd.read_csv(gov_url, thousands = ',')
+    gov_data = gov_data[['City/Town','Democratic']]
+    gov_data.rename(columns = {'Democratic':'DEM_GOV'}, inplace = True)
+    
+    
+    ag_data = pd.read_csv(ag_url, thousands = ',')
+    ag_data = ag_data[['City/Town','Democratic']]
+    ag_data.rename(columns = {'Democratic':'DEM_AG'}, inplace = True)
+
+    all_data = pd.merge(gov_data,ag_data,on = 'City/Town')
+    all_data = all_data.set_index(['City/Town'])
+    all_data.astype('int32').dtypes
+    
+    all_data['democratic_base'] = all_data[['DEM_AG','DEM_GOV']].max(axis = 1)
+    all_data['pct_lost_voters'] = (all_data['DEM_GOV'] - all_data['DEM_AG'])/all_data['democratic_base'] * 100
+    all_data['direction'] = all_data['pct_lost_voters'].apply(vote_result)
+    all_data = all_data[['democratic_base','pct_lost_voters','direction']]
+    
+    all_data = all_data.sort_values(['pct_lost_voters'], ascending = False)
+    
+    return all_data
+
+
+def make_master_table(list_of_years):
+    list_of_dataframes = []
+    for year in list_of_years:
+        year_data_table = ag_flip_analysis(year)
+        year_name = 'lost_voters_{}'.format(year)
+        year_data_table.rename(columns = {'pct_lost_voters': year_name}, inplace = True)
+        year_data_table = year_data_table[[year_name]]
+        list_of_dataframes.append(year_data_table)
+    master_data = reduce(lambda x, y: pd.merge(x, y,left_index = True, right_index = True), list_of_dataframes)
+    return master_data
+
+        
+        
+year_list = [2018,2014,2010,200,1998,1994,1990,1986,1982]
+
+
+
+
+
+
