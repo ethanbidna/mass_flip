@@ -50,7 +50,8 @@ def make_master_table(list_of_years):
 
         
         
-year_list = [2018,2014,2010,200,1998,1994,1990,1986,1982]
+year_list = [2018,2014,2010,2006,1998,1994,1990,1986,1982,1978,1974,1970]
+make_master_table(year_list)
 
 
 
