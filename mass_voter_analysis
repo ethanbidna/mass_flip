@@ -28,11 +28,11 @@ def ag_flip_analysis(year):
     all_data.astype('int32').dtypes
     
     all_data['democratic_base'] = all_data[['DEM_AG','DEM_GOV']].max(axis = 1)
-    all_data['pct_lost_voters'] = (all_data['DEM_GOV'] - all_data['DEM_AG'])/all_data['democratic_base'] * 100
-    all_data['direction'] = all_data['pct_lost_voters'].apply(vote_result)
-    all_data = all_data[['democratic_base','pct_lost_voters','direction']]
+    all_data['pct_undervote'] = (all_data['DEM_GOV'] - all_data['DEM_AG'])/all_data['democratic_base'] * 100
+    all_data['direction'] = all_data['pct_undervote'].apply(vote_result)
+    all_data = all_data[['democratic_base','pct_undervote','direction']]
     
-    all_data = all_data.sort_values(['pct_lost_voters'], ascending = False)
+    all_data = all_data.sort_values(['pct_undervote'], ascending = False)
     
     return all_data
 
@@ -41,8 +41,8 @@ def make_master_table(list_of_years):
     list_of_dataframes = []
     for year in list_of_years:
         year_data_table = ag_flip_analysis(year)
-        year_name = 'lost_voters_{}'.format(year)
-        year_data_table.rename(columns = {'pct_lost_voters': year_name}, inplace = True)
+        year_name = 'undervote_{}'.format(year)
+        year_data_table.rename(columns = {'pct_undervote': year_name}, inplace = True)
         year_data_table = year_data_table[[year_name]]
         list_of_dataframes.append(year_data_table)
     master_data = reduce(lambda x, y: pd.merge(x, y,left_index = True, right_index = True), list_of_dataframes)
