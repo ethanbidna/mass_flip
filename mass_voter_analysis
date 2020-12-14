@@ -10,10 +10,13 @@ def vote_result(x):
 
 
 def ag_flip_analysis(year):
-    """Pass in year, and get analysis of the flip in that year """
-    gov_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Governor/GOV_{}.csv'.format(year)
-    ag_url = '/Users/ethanbidna/Dropbox/Data Science/Data Projects/Massachusets Voter Analysis/Raw Data/Attorney General/AG_{}.csv'.format(year)
-    
+    """Computes percent of people who voted democrat in one race, but not in the
+    other in each year and each city in Massachuests. The percentage is relative
+     to a statewide benchmark for each year. """
+
+    gov_url = 'Governor/GOV_{}.csv'.format(year)
+    ag_url = 'Attorney General/AG_{}.csv'.format(year)
+
     gov_data = pd.read_csv(gov_url, thousands = ',')
     gov_data = gov_data[['City/Town','Democratic']]
     gov_data.rename(columns = {'Democratic':'DEM_GOV'}, inplace = True)
